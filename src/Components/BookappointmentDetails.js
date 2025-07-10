@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
-import secureLocalStorage from "react-secure-storage";
+
 
 const BookappointmentDetails = () => {
   const location = useLocation();

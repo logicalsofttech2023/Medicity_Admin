@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { Navigate, useNavigate } from "react-router-dom";
-import secureLocalStorage from "react-secure-storage";
+
 
 const PackageDetails = () => {
   const mar = {
@@ -15,7 +15,6 @@ const PackageDetails = () => {
   const [package_categoryId, setpackage_categoryId] = useState();
   const [Getdata, setGetdata] = useState();
   const [title, settitle] = useState();
-  const [price, setprice] = useState();
   const [discount_price, setdiscount_price] = useState();
   const [report_time, setreport_time] = useState();
   const [fasting_time, setfasting_time] = useState();
@@ -26,16 +25,72 @@ const PackageDetails = () => {
 
   const [selectedTests, setSelectedTests] = useState([]);
 
-  const tests = [
-    "Blood Sugar",
-    "Cholesterol",
-    "CBC",
-    "Diabetes (HbA1c)",
-    "Thyroid",
-    "Lipid",
-  ];
+    const [tests, setTests] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [price, setprice] = useState(0);
 
-  const packageid = secureLocalStorage.getItem("packageid");
+  // const tests = [
+  //   "Blood Sugar",
+  //   "Cholesterol",
+  //   "CBC",
+  //   "Diabetes (HbA1c)",
+  //   "Thyroid",
+  //   "Lipid",
+  // ];
+
+   useEffect(() => {
+    const fetchTests = async () => {
+      try {
+        const formData = new FormData();
+        formData.append("empId", "KLR099101");
+        formData.append("secretKey", "KLR@74123");
+
+        const response = await axios.post(
+          "https://medicityguwahati.in/klar_diag/api/getTestList/",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        if (response.data.status) {
+          setTests(response.data.labTest);
+        } else {
+          console.error("Failed to fetch tests:", response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching tests:", error);
+      }
+    };
+
+    fetchTests();
+  }, []);
+
+  const toggleTestSelection = (test) => {
+    setSelectedTests((prev) => {
+      const isSelected = prev.some((t) => t.test_id === test.test_id);
+
+      if (isSelected) {
+        setprice((prevPrice) => prevPrice - parseFloat(test.test_rate));
+        return prev.filter((t) => t.test_id !== test.test_id);
+      } else {
+        setprice((prevPrice) => prevPrice + parseFloat(test.test_rate));
+        return [
+          ...prev,
+          {
+            test_id: test.test_id,
+            test_name: test.test_name,
+            test_rate: test.test_rate,
+          },
+        ];
+      }
+    });
+  };
+
+
+  const packageid = localStorage.getItem("packageid");
   const handleCheckboxChange = (testName) => {
     setSelectedTests((prevTests) =>
       prevTests.includes(testName)
@@ -85,12 +140,12 @@ const PackageDetails = () => {
       interoduction: introduction,
       total_test: selectedTests?.length,
       package_categoryId: package_categoryId,
-      test: selectedTests.join(", "),
+      test: JSON.stringify(selectedTests),
       offer: JSON.stringify(offers),
     };
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_KEY}updatePackages`,
+        `${process.env.REACT_APP_API_KEY}updatePackage`,
         data
       );
       toast.success(response.data.message);
@@ -413,36 +468,90 @@ const PackageDetails = () => {
                       </div>
                     </div>
 
-                    <div className="mb-3 row">
-                      {Array(3)
-                        .fill()
-                        .map((_, colIndex) => (
-                          <div
-                            key={colIndex}
-                            className="col-form-label col-md-4"
-                          >
-                            <label className="col-form-label">Tests</label>
-                            <div>
-                              {tests
-                                .slice(colIndex * 2, colIndex * 2 + 2)
-                                .map((test, index) => (
-                                  <div className="checkbox" key={index}>
-                                    <label>
-                                      <input
-                                        style={mar}
-                                        type="checkbox"
-                                        checked={selectedTests.includes(test)}
-                                        onChange={() =>
-                                          handleCheckboxChange(test)
-                                        }
-                                      />
-                                      {test}
-                                    </label>
-                                  </div>
-                                ))}
+                    <div style={{ marginBottom: "1.5rem" }}>
+                      <label
+                        style={{
+                          display: "block",
+                          marginBottom: "0.5rem",
+                          fontWeight: "500",
+                          color: "#212529",
+                        }}
+                      >
+                        Select Tests
+                      </label>
+
+                      {/* Search input */}
+                      <input
+                        type="text"
+                        placeholder="Search tests..."
+                        style={{
+                          width: "100%",
+                          padding: "0.5rem 0.75rem",
+                          marginBottom: "0.5rem",
+                          fontSize: "1rem",
+                          border: "1px solid #ced4da",
+                          borderRadius: "0.375rem",
+                        }}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+
+                      <div
+                        style={{
+                          width: "100%",
+                          padding: "0.75rem",
+                          fontSize: "1rem",
+                          lineHeight: "1.5",
+                          color: "#495057",
+                          backgroundColor: "#fff",
+                          border: "1px solid #ced4da",
+                          borderRadius: "0.375rem",
+                          height: "200px",
+                          overflowY: "auto",
+                        }}
+                      >
+                        {tests
+                          .filter((test) =>
+                            test.test_name
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase())
+                          )
+                          .map((test) => (
+                            <div
+                              key={test.test_id}
+                              style={{
+                                padding: "0.5rem",
+                                margin: "0.125rem 0",
+                                borderRadius: "0.25rem",
+                                backgroundColor: selectedTests.some(
+                                  (t) => t.test_id === test.test_id
+                                )
+                                  ? "#e9ecef"
+                                  : "transparent",
+                                display: "flex",
+                                alignItems: "center",
+                                cursor: "pointer",
+                                transition: "background-color 0.2s",
+                              }}
+                              onClick={() => toggleTestSelection(test)} // ✅ Pass full test object
+                            >
+                              <input
+                                type="checkbox"
+                                checked={selectedTests.some(
+                                  (t) => t.test_id === test.test_id
+                                )} // ✅ Compare by test_id
+                                onChange={() => toggleTestSelection(test)} // ✅ Pass full test object
+                                style={{
+                                  marginRight: "0.75rem",
+                                  cursor: "pointer",
+                                }}
+                              />
+                              {test.test_name}
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                      </div>
+                      <div style={{ marginTop: "1rem", fontWeight: "500" }}>
+                        Total Price: ₹{price}
+                      </div>
                     </div>
 
                     <button

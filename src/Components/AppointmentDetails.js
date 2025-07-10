@@ -1,7 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
-import secureLocalStorage from "react-secure-storage";
 
 const AppointmentDetails = () => {
   const location = useLocation();
@@ -129,9 +128,9 @@ const Navigate = useNavigate();
                     <div className="start-appointment-set">
                       {Ordersdata?.packageIds?.map((data) => {
                         return (
-                          <div onClick={(()=>{secureLocalStorage.setItem("packageid",data._id)
+                          <div onClick={(()=>{localStorage.setItem("packageid",data._id)
                             Navigate("/PackageDetails")
-                          })} PackageDetails className="row">
+                          })} className="row">
                             <div className="col-md-12">
                               <div className="input-block input-block-new">
                                 <div className="bootstrap-tagsinput">

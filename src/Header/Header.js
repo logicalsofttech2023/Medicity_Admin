@@ -1,13 +1,12 @@
 import React from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import secureLocalStorage from "react-secure-storage";
 import logo from "./logo.png"
 import logo1 from "./logo - Copy.png"
 
 const Header = () => {
   const Navigate = useNavigate();
   const Logout =()=>{
-    secureLocalStorage.clear();
+    localStorage.clear();
     Navigate('/')
   }
   return (
@@ -218,3 +217,8 @@ const Header = () => {
 };
 
 export default Header;
+
+
+
+
+

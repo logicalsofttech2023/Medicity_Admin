@@ -2,7 +2,6 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { Link } from "react-router-dom";
-import secureLocalStorage from "react-secure-storage";
 
 const Packagelist = () => {
   const [count, setcount] = useState();
@@ -86,72 +85,106 @@ const Packagelist = () => {
                           <th>Actions</th>
                         </tr>
                       </thead>
-                      <tbody>
-                        {GetAllPackagesData?.map((data, index) => {
-                          return (
-                            <tr>
-                              <td>
-                                <a href="#">{index + 1}</a>
-                              </td>
-                              <td>
-                                <Link
-                                  to="/PackageDetails"
-                                  onClick={() =>
-                                    secureLocalStorage.setItem(
-                                      "packageid",
-                                      data._id
-                                    )
-                                  }
-                                >
-                                  {data?.title.length > 15
-                                    ? data?.title.slice(0, 15) + "..."
-                                    : data?.title}
-                                </Link>
-                              </td>
-                              <td>
-                                ₹{data?.price}{" "}
-                                <del>₹{data?.discount_price}</del>
-                              </td>
-                              <td>{data?.ageGroup} Years</td>
-                              <td>{data?.total_test}</td>
-                              <td>
-                                {data?.test?.length > 1
-                                  ? `${data?.test[0]}...`
-                                  : data?.test[0]}
-                              </td>
-                              <td>{data?.package_categoryId?.name}</td>
-                              <td>{data?.createdAt?.slice(0, 10)}</td>
-                              {/* <td>
-                          <span className="badge rounded-pill bg-success inv-badge">Paid</span>
-                        </td> */}
-                              <td>
-                                <div className="actions">
-                                  <Link
-                                    to="/PackageDetails"
-                                    onClick={() =>
-                                      secureLocalStorage.setItem(
-                                        "packageid",
-                                        data._id
-                                      )
-                                    }
-                                    className="btn btn-sm bg-success-light me-2"
-                                  >
-                                    <i className="fe fe-pencil" /> Edit
-                                  </Link>
-                                  <a
-                                    onClick={() => setPackageid(data._id)}
-                                    className="btn btn-sm bg-danger-light"
-                                    data-bs-toggle="modal"
-                                    href="#delete_modal"
-                                  >
-                                    <i className="fe fe-trash" /> Delete
-                                  </a>
-                                </div>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
+                     <tbody>
+  {GetAllPackagesData?.map((data, index) => {
+    return (
+      <tr key={data._id} style={{ verticalAlign: 'middle' }}>
+        <td style={{ width: '50px' }}>
+          <a href="#" style={{ color: '#2E37A4', textDecoration: 'none', fontWeight: '500' }}>
+            {index + 1}
+          </a>
+        </td>
+        <td style={{ minWidth: '150px' }}>
+          <Link
+            to="/PackageDetails"
+            onClick={() => localStorage.setItem("packageid", data._id)}
+            style={{
+              color: '#2E37A4',
+              fontWeight: '500',
+              textDecoration: 'none',
+              transition: 'all 0.3s',
+              ':hover': { color: '#1a237e' }
+            }}
+          >
+            {data?.title?.length > 15
+              ? `${data.title.slice(0, 15)}...`
+              : data.title}
+          </Link>
+        </td>
+        <td style={{ minWidth: '120px' }}>
+          <span style={{ color: '#28a745', fontWeight: '600' }}>₹{data?.price}</span>{' '}
+          <del style={{ color: '#6c757d', fontSize: '0.875em' }}>₹{data?.discount_price}</del>
+        </td>
+        <td style={{ textAlign: 'center' }}>{data?.ageGroup} Years</td>
+        <td style={{ textAlign: 'center' }}>{data?.total_test}</td>
+        <td style={{ minWidth: '200px' }}>
+  {Array.isArray(data?.test) && data.test.length > 0
+    ? data.test
+        .map(t => t.test_name || t) // show test_name
+        .join(', ')
+        .slice(0, 30) + 
+      (data.test.map(t => t.test_name || t).join(', ').length > 30 ? '...' : '')
+    : 'No tests'}
+</td>
+
+        <td style={{ minWidth: '150px' }}>
+          <span style={{
+            backgroundColor: '#e3f2fd',
+            color: '#1976d2',
+            padding: '3px 8px',
+            borderRadius: '4px',
+            fontSize: '0.875em'
+          }}>
+            {data?.package_categoryId?.name}
+          </span>
+        </td>
+        <td style={{ minWidth: '120px' }}>
+          {new Date(data?.createdAt).toLocaleDateString()}
+        </td>
+        <td style={{ minWidth: '200px' }}>
+          <div className="actions" style={{ display: 'flex', gap: '8px' }}>
+            <Link
+              to="/PackageDetails"
+              onClick={() => localStorage.setItem("packageid", data._id)}
+              style={{
+                backgroundColor: '#e8f5e9',
+                color: '#2e7d32',
+                padding: '5px 10px',
+                borderRadius: '4px',
+                fontSize: '0.875em',
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              <i className="fe fe-pencil" style={{ fontSize: '0.875em' }} /> Edit
+            </Link>
+            <a
+              onClick={() => setPackageid(data._id)}
+              style={{
+                backgroundColor: '#ffebee',
+                color: '#c62828',
+                padding: '5px 10px',
+                borderRadius: '4px',
+                fontSize: '0.875em',
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                cursor: 'pointer'
+              }}
+              data-bs-toggle="modal"
+              href="#delete_modal"
+            >
+              <i className="fe fe-trash" style={{ fontSize: '0.875em' }} /> Delete
+            </a>
+          </div>
+        </td>
+      </tr>
+    );
+  })}
+</tbody>
                     </table>
                   </div>
                 </div>

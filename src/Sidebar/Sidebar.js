@@ -45,9 +45,9 @@ const Sidebar = () => {
           <li className={isActive("/Patientlist") ? "active" : ""}> 
             <Link to="/Patientlist"><i className="fe fe-user" /> <span>Patients</span></Link>
           </li>
-          <li className={isActive("/Specialities") ? "active" : ""}> 
+          {/* <li className={isActive("/Specialities") ? "active" : ""}> 
             <Link to="/Specialities"><i className="fe fe-users" /> <span>Specialities</span></Link>
-          </li>
+          </li> */}
 
           <li className={isActive("/blogCategory") ? "active" : ""}> 
             <Link to="/blogCategory"><i className="fe fe-users" /> <span>Add Blog Category</span></Link>

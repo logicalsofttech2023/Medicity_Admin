@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
- import secureLocalStorage from "react-secure-storage";
 
 const Protect = (props) => {
   let { ComponentName } = props;
@@ -8,7 +7,7 @@ const Protect = (props) => {
   let navigate = useNavigate();
 
   useEffect(() => {
-    let status = secureLocalStorage.getItem("medicityadminid");
+    let status = localStorage.getItem("medicityadminid");
     
     
     if (!status) {

@@ -12,38 +12,73 @@ const Addpackage = () => {
   const Navigate = useNavigate();
   const [packageType, setpackageType] = useState();
   const [description, setdescription] = useState();
-  const [image,setimage] = useState();
+  const [image, setimage] = useState();
   const [package_categoryId, setpackage_categoryId] = useState();
   const [Getdata, setGetdata] = useState();
   const [title, settitle] = useState();
-  const [price, setprice] = useState();
   const [discount_price, setdiscount_price] = useState();
   const [report_time, setreport_time] = useState();
   const [fasting_time, setfasting_time] = useState();
-  const [gender, setgender] = useState();
-
+  const [gender, setgender] = useState("Male");
   const [ageGroup, setageGroup] = useState();
   const [introduction, setintroduction] = useState();
-  const [total_test, settotal_test] = useState();
 
   const [selectedTests, setSelectedTests] = useState([]);
+  const [tests, setTests] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [price, setprice] = useState(0);
 
-  const tests = [
-    "Blood Sugar",
-    "Cholesterol",
-    "CBC",
-    "Diabetes (HbA1c)",
-    "Thyroid",
-    "Lipid",
-  ];
+  useEffect(() => {
+    const fetchTests = async () => {
+      try {
+        const formData = new FormData();
+        formData.append("empId", "KLR099101");
+        formData.append("secretKey", "KLR@74123");
 
-  const handleCheckboxChange = (testName) => {
-    setSelectedTests((prevTests) =>
-      prevTests.includes(testName)
-        ? prevTests.filter((test) => test !== testName)
-        : [...prevTests, testName]
-    );
+        const response = await axios.post(
+          "https://medicityguwahati.in/klar_diag/api/getTestList/",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        if (response.data.status) {
+          setTests(response.data.labTest);
+        } else {
+          console.error("Failed to fetch tests:", response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching tests:", error);
+      }
+    };
+
+    fetchTests();
+  }, []);
+
+  const toggleTestSelection = (test) => {
+    setSelectedTests((prev) => {
+      const isSelected = prev.some((t) => t.test_id === test.test_id);
+
+      if (isSelected) {
+        setprice((prevPrice) => prevPrice - parseFloat(test.test_rate));
+        return prev.filter((t) => t.test_id !== test.test_id);
+      } else {
+        setprice((prevPrice) => prevPrice + parseFloat(test.test_rate));
+        return [
+          ...prev,
+          {
+            test_id: test.test_id,
+            test_name: test.test_name,
+            test_rate: test.test_rate,
+          },
+        ];
+      }
+    });
   };
+
   const [offers, setOffers] = useState([
     {
       disc_percantage: "10",
@@ -72,35 +107,34 @@ const Addpackage = () => {
   };
   const addPackage = async () => {
     const formData = new FormData();
+
+    formData.append("packageType", packageType);
+    formData.append("description", description || "");
+    formData.append("title", title);
+    formData.append("price", price);
+    formData.append("discount_price", discount_price);
+    formData.append("report_time", report_time);
+    formData.append("fasting_time", fasting_time);
+    formData.append("gender", gender);
+    formData.append("ageGroup", ageGroup);
+    formData.append("interoduction", introduction);
+    formData.append("total_test", selectedTests?.length);
+    formData.append("package_categoryId", package_categoryId || "");
+    formData.append("test", JSON.stringify(selectedTests));
+    formData.append("offer", JSON.stringify(offers));
+
+    if (image) {
+      formData.append("image", image || "");
+    }
+    console.log(gender);
     
 
-    formData.append('packageType', packageType);
-    formData.append('description', description || "");
-    formData.append('title', title);
-    formData.append('price', price);
-    formData.append('discount_price', discount_price);
-    formData.append('report_time', report_time);
-    formData.append('fasting_time', fasting_time);
-    formData.append('gender', gender);
-    formData.append('ageGroup', ageGroup);
-    formData.append('interoduction', introduction); 
-    formData.append('total_test', selectedTests?.length);
-    formData.append('package_categoryId', package_categoryId || "");
-    formData.append('test', selectedTests.join(", "));
-    formData.append('offer', JSON.stringify(offers));
-    
-   
-    if (image) {
-      formData.append('image', image || "");
-    }
-  
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_KEY}addPackage`,
-        formData,
-      
+        formData
       );
-      
+
       toast.success(response.data.message);
       setTimeout(() => {
         Navigate("/Packagelist");
@@ -108,8 +142,7 @@ const Addpackage = () => {
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to add package");
     }
-  }
-  
+  };
 
   useEffect(() => {
     GetAllPackageCategories();
@@ -122,7 +155,7 @@ const Addpackage = () => {
       })
       .catch((err) => {});
   };
-  
+
   return (
     <div className="main-wrapper">
       <Toaster />
@@ -151,90 +184,84 @@ const Addpackage = () => {
                   <h4 className="card-title">Package Details</h4>
                 </div>
                 <div className="card-body">
-                  <div >
-                  <div class="mb-3 row">
+                  <div>
+                    <div class="mb-3 row">
                       <label class="col-form-label col-md-3">
                         Package Type
                       </label>
                       <div class="col-md-9">
                         <select
                           required
-                          onChange={(e) =>
-                            setpackageType(e.target.value)
-                          }
+                          onChange={(e) => setpackageType(e.target.value)}
                           className="form-select form-control"
                           value={packageType}
                         >
                           <option value="">-- Select --</option>
-                         
-                            <option  value="Doctors Curated Health">
+
+                          <option value="Doctors Curated Health">
                             Doctors Curated Health
-                            </option>
-                            {/* <option  value="Top Health Packages">
+                          </option>
+                          {/* <option  value="Top Health Packages">
                             Top Health Packages
                             </option> */}
-                            <option  value="Featured Family Care">
+                          <option value="Featured Family Care">
                             Featured Family Care
-                            </option>
-                            <option  value="Best Packages">
-                            Best Packages
-                            </option>
-                          
+                          </option>
+                          <option value="Best Packages">Best Packages</option>
                         </select>
                       </div>
                     </div>
-                    {packageType == "Doctors Curated Health" ? 
-                    (
-                    <div class="mb-3 row">
-                      <label class="col-form-label col-md-3">
-                        Doctors Curated
-                      </label>
-                      <div class="col-md-9">
-                        <select
-                          required
-                          onChange={(e) =>
-                            setpackage_categoryId(e.target.value)
-                          }
-                          className="form-select form-control"
-                          value={package_categoryId}
-                        >
-                          <option value="">-- Select --</option>
-                          {Getdata
-      ?.filter(data => data?.type === "Doctors Curated")
-      ?.map((data) => (
-                            <option key={data._id} value={data._id}>
-                              {data?.name}
-                            </option>
-                          ))}
-                        </select>
+                    {packageType == "Doctors Curated Health" ? (
+                      <div class="mb-3 row">
+                        <label class="col-form-label col-md-3">
+                          Doctors Curated
+                        </label>
+                        <div class="col-md-9">
+                          <select
+                            required
+                            onChange={(e) =>
+                              setpackage_categoryId(e.target.value)
+                            }
+                            className="form-select form-control"
+                            value={package_categoryId}
+                          >
+                            <option value="">-- Select --</option>
+                            {Getdata?.filter(
+                              (data) => data?.type === "Doctors Curated"
+                            )?.map((data) => (
+                              <option key={data._id} value={data._id}>
+                                {data?.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
-                    </div>) : packageType == "Best Packages" ?
-(
-<div class="mb-3 row">
-                      <label class="col-form-label col-md-3">
-                      Best Packages
-                      </label>
-                      <div class="col-md-9">
-                        <select
-                          required
-                          onChange={(e) =>
-                            setpackage_categoryId(e.target.value)
-                          }
-                          className="form-select form-control"
-                          value={package_categoryId}
-                        >
-                          <option value="">-- Select --</option>
-    {Getdata
-      ?.filter(data => data?.type === "Best Packages")
-      ?.map((data) => (
-        <option key={data._id} value={data._id}>
-          {data?.name}
-        </option>
-      ))}
-                        </select>
+                    ) : packageType == "Best Packages" ? (
+                      <div class="mb-3 row">
+                        <label class="col-form-label col-md-3">
+                          Best Packages
+                        </label>
+                        <div class="col-md-9">
+                          <select
+                            required
+                            onChange={(e) =>
+                              setpackage_categoryId(e.target.value)
+                            }
+                            className="form-select form-control"
+                            value={package_categoryId}
+                          >
+                            <option value="">-- Select --</option>
+                            {Getdata?.filter(
+                              (data) => data?.type === "Best Packages"
+                            )?.map((data) => (
+                              <option key={data._id} value={data._id}>
+                                {data?.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
-                    </div>
-) : null}
+                    ) : null}
                     <div className="mb-3 row">
                       <label className="col-form-label col-md-3">
                         Package Name
@@ -261,6 +288,7 @@ const Addpackage = () => {
                           type="number"
                           placeholder="₹1099"
                           className="form-control"
+                          disabled
                         />
                       </div>
                     </div>
@@ -426,14 +454,16 @@ const Addpackage = () => {
                         </div>
                         <div className="col-md-2 d-flex">
                           <div>
-                            <div type="button"
+                            <div
+                              type="button"
                               className="btn btn-danger"
                               onClick={() => removeOffer(index)}
                             >
                               X
                             </div>
                             &nbsp;{" "}
-                            <div type="button"
+                            <div
+                              type="button"
                               className="btn btn-primary"
                               onClick={addOffer}
                             >
@@ -459,7 +489,7 @@ const Addpackage = () => {
                       </div>
                     </div>
 
-                    <div className="mb-3 row">
+                    {/* <div className="mb-3 row">
                       {Array(3)
                         .fill()
                         .map((_, colIndex) => (
@@ -489,16 +519,107 @@ const Addpackage = () => {
                             </div>
                           </div>
                         ))}
-                    </div>
-                    <div className="mb-3 row">
-                      <label className="col-form-label col-md-3">
-                        Image 
+                    </div> */}
+
+                    <div style={{ marginBottom: "1.5rem" }}>
+                      <label
+                        style={{
+                          display: "block",
+                          marginBottom: "0.5rem",
+                          fontWeight: "500",
+                          color: "#212529",
+                        }}
+                      >
+                        Select Tests
                       </label>
+
+                      {/* Search input */}
+                      <input
+                        type="text"
+                        placeholder="Search tests..."
+                        style={{
+                          width: "100%",
+                          padding: "0.5rem 0.75rem",
+                          marginBottom: "0.5rem",
+                          fontSize: "1rem",
+                          border: "1px solid #ced4da",
+                          borderRadius: "0.375rem",
+                        }}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+
+                      <div
+                        style={{
+                          width: "100%",
+                          padding: "0.75rem",
+                          fontSize: "1rem",
+                          lineHeight: "1.5",
+                          color: "#495057",
+                          backgroundColor: "#fff",
+                          border: "1px solid #ced4da",
+                          borderRadius: "0.375rem",
+                          height: "200px",
+                          overflowY: "auto",
+                        }}
+                      >
+                        {tests
+                          .filter((test) =>
+                            test.test_name
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase())
+                          )
+                          .map((test) => (
+                            <div
+                              key={test.test_id}
+                              style={{
+                                padding: "0.5rem",
+                                margin: "0.125rem 0",
+                                borderRadius: "0.25rem",
+                                backgroundColor: selectedTests.some(
+                                  (t) => t.test_id === test.test_id
+                                )
+                                  ? "#e9ecef"
+                                  : "transparent",
+                                display: "flex",
+                                alignItems: "center",
+                                cursor: "pointer",
+                                transition: "background-color 0.2s",
+                              }}
+                              onClick={() => toggleTestSelection(test)} // ✅ Pass full test object
+                            >
+                              <input
+                                type="checkbox"
+                                checked={selectedTests.some(
+                                  (t) => t.test_id === test.test_id
+                                )} // ✅ Compare by test_id
+                                onChange={() => toggleTestSelection(test)} // ✅ Pass full test object
+                                style={{
+                                  marginRight: "0.75rem",
+                                  cursor: "pointer",
+                                }}
+                              />
+                              {test.test_name}
+                            </div>
+                          ))}
+                      </div>
+                      <div style={{ marginTop: "1rem", fontWeight: "500" }}>
+                        Total Price: ₹{price}
+                      </div>
+                    </div>
+
+                    <div className="mb-3 row">
+                      <label className="col-form-label col-md-3">Image</label>
                       <div className="col-md-9">
-                        {image ? 
-                        <img height={80} width={80} style={{borderRadius:'5px'}} src={URL.createObjectURL(image)}/> : null}
+                        {image ? (
+                          <img
+                            height={80}
+                            width={80}
+                            style={{ borderRadius: "5px" }}
+                            src={URL.createObjectURL(image)}
+                          />
+                        ) : null}
                         <input
-                          onChange={((e)=>setimage(e.target.files[0]))}
+                          onChange={(e) => setimage(e.target.files[0])}
                           type="file"
                           accept="image/*"
                           className="form-control"
@@ -506,7 +627,8 @@ const Addpackage = () => {
                         />
                       </div>
                     </div>
-                    <button  onClick={addPackage}
+                    <button
+                      onClick={addPackage}
                       type="button"
                       className="btn btn-primary float-end mt-2"
                     >
