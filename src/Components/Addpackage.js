@@ -489,37 +489,7 @@ const Addpackage = () => {
                       </div>
                     </div>
 
-                    {/* <div className="mb-3 row">
-                      {Array(3)
-                        .fill()
-                        .map((_, colIndex) => (
-                          <div
-                            key={colIndex}
-                            className="col-form-label col-md-4"
-                          >
-                            <label className="col-form-label">Tests</label>
-                            <div>
-                              {tests
-                                .slice(colIndex * 2, colIndex * 2 + 2)
-                                .map((test, index) => (
-                                  <div className="checkbox" key={index}>
-                                    <label>
-                                      <input
-                                        style={mar}
-                                        type="checkbox"
-                                        checked={selectedTests.includes(test)}
-                                        onChange={() =>
-                                          handleCheckboxChange(test)
-                                        }
-                                      />
-                                      {test}
-                                    </label>
-                                  </div>
-                                ))}
-                            </div>
-                          </div>
-                        ))}
-                    </div> */}
+                    
 
                     <div style={{ marginBottom: "1.5rem" }}>
                       <label

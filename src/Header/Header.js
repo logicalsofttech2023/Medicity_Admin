@@ -1,14 +1,16 @@
 import React from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
-import logo from "./logo.png"
-import logo1 from "./logo - Copy.png"
+import { Link, useNavigate } from "react-router-dom";
+import logo from "./logo.png";
+import logo1 from "./logo - Copy.png";
 
-const Header = () => {
-  const Navigate = useNavigate();
-  const Logout =()=>{
+const Header = ({ isMobileSidebarOpen, toggleMobileSidebar }) => {
+  const navigate = useNavigate();
+
+  const Logout = () => {
     localStorage.clear();
-    Navigate('/')
-  }
+    navigate('/');
+  };
+
   return (
     <div className="header">
       {/* Logo */}
@@ -17,18 +19,21 @@ const Header = () => {
           <img src={logo} alt="Logo" />
         </Link>
         <Link to="/home" className="logo logo-small">
-          <img
-            src={logo1}
-            alt="Logo"
-            width={30}
-            height={30}
-          />
+          <img src={logo1} alt="Logo" width={30} height={30} />
         </Link>
       </div>
-      {/* /Logo */}
-      <a href="javascript:void(0);" id="toggle_btn">
-        <i className="fe fe-text-align-left" />
-      </a>
+      
+      {/* Sidebar Toggle Button */}
+      {/* <a 
+        href="#!" 
+        className="toggle-btn" 
+        onClick={toggleMobileSidebar}
+        aria-label="Toggle sidebar"
+      >
+        <i className={`fe ${isMobileSidebarOpen ? 'fe-x' : 'fe-text-align-left'}`} />
+      </a> */}
+      
+      {/* Search Bar */}
       <div className="top-nav-search">
         <form>
           <input
@@ -41,11 +46,17 @@ const Header = () => {
           </button>
         </form>
       </div>
-      {/* Mobile Menu Toggle */}
-      <a className="mobile_btn" id="mobile_btn">
+      
+      {/* Mobile Menu Toggle - Visible only on mobile */}
+      <a 
+        className="mobile_btn" 
+        id="mobile_btn"
+        onClick={toggleMobileSidebar}
+        aria-label="Mobile menu toggle"
+      >
         <i className="fa fa-bars" />
       </a>
-      {/* /Mobile Menu Toggle */}
+      
       {/* Header Right Menu */}
       <ul className="nav user-menu">
         {/* Notifications */}
@@ -54,22 +65,20 @@ const Header = () => {
             href="#"
             className="dropdown-toggle nav-link"
             data-bs-toggle="dropdown"
+            aria-expanded="false"
           >
-            <i className="fe fe-bell" />{" "}
+            <i className="fe fe-bell" />
             <span className="badge rounded-pill">3</span>
           </a>
-          <div className="dropdown-menu notifications">
+          <div className="dropdown-menu notifications dropdown-menu-end">
             <div className="topnav-dropdown-header">
               <span className="notification-title">Notifications</span>
-              <a href="javascript:void(0)" className="clear-noti">
-                {" "}
-                Clear All{" "}
-              </a>
+              <a href="#!" className="clear-noti">Clear All</a>
             </div>
             <div className="noti-content">
               <ul className="notification-list">
                 <li className="notification-message">
-                  <a href="#">
+                  <a href="#!">
                     <div className="notify-block d-flex">
                       <span className="avatar avatar-sm flex-shrink-0">
                         <img
@@ -80,8 +89,7 @@ const Header = () => {
                       </span>
                       <div className="media-body flex-grow-1">
                         <p className="noti-details">
-                          <span className="noti-title">Dr. Ruby Perrin</span>{" "}
-                          Schedule{" "}
+                          <span className="noti-title">Dr. Ruby Perrin</span> Schedule{" "}
                           <span className="noti-title">her appointment</span>
                         </p>
                         <p className="noti-time">
@@ -92,7 +100,7 @@ const Header = () => {
                   </a>
                 </li>
                 <li className="notification-message">
-                  <a href="#">
+                  <a href="#!">
                     <div className="notify-block d-flex">
                       <span className="avatar avatar-sm flex-shrink-0">
                         <img
@@ -115,7 +123,7 @@ const Header = () => {
                   </a>
                 </li>
                 <li className="notification-message">
-                  <a href="#">
+                  <a href="#!">
                     <div className="notify-block d-flex">
                       <span className="avatar avatar-sm flex-shrink-0">
                         <img
@@ -137,43 +145,21 @@ const Header = () => {
                     </div>
                   </a>
                 </li>
-                <li className="notification-message">
-                  <a href="#">
-                    <div className="notify-block d-flex">
-                      <span className="avatar avatar-sm flex-shrink-0">
-                        <img
-                          className="avatar-img rounded-circle"
-                          alt="User Image"
-                          src="assets/img/patients/patient3.jpg"
-                        />
-                      </span>
-                      <div className="media-body flex-grow-1">
-                        <p className="noti-details">
-                          <span className="noti-title">Carl Kelly</span> send a
-                          message{" "}
-                          <span className="noti-title"> to his doctor</span>
-                        </p>
-                        <p className="noti-time">
-                          <span className="notification-time">12 mins ago</span>
-                        </p>
-                      </div>
-                    </div>
-                  </a>
-                </li>
               </ul>
             </div>
             <div className="topnav-dropdown-footer">
-              <a href="#">View all Notifications</a>
+              <a href="#!">View all Notifications</a>
             </div>
           </div>
         </li>
-        {/* /Notifications */}
+        
         {/* User Menu */}
         <li className="nav-item dropdown has-arrow">
           <a
-            href="#"
+            href="#!"
             className="dropdown-toggle nav-link"
             data-bs-toggle="dropdown"
+            aria-expanded="false"
           >
             <span className="user-img">
               <img
@@ -184,7 +170,7 @@ const Header = () => {
               />
             </span>
           </a>
-          <div className="dropdown-menu">
+          <div className="dropdown-menu dropdown-menu-end">
             <div className="user-header">
               <div className="avatar avatar-sm">
                 <img
@@ -198,27 +184,20 @@ const Header = () => {
                 <p className="text-muted mb-0">Administrator</p>
               </div>
             </div>
-            <Link className="dropdown-item" to="/Profile">
+            <Link className="dropdown-item" to="/Profile" onClick={() => window.innerWidth <= 992 && toggleMobileSidebar()}>
               My Profile
             </Link>
-            <Link className="dropdown-item" to="/Settings">
+            <Link className="dropdown-item" to="/Settings" onClick={() => window.innerWidth <= 992 && toggleMobileSidebar()}>
               Settings
             </Link>
-            <button className="dropdown-item" onClick={Logout} to="#">
+            <button className="dropdown-item" onClick={Logout}>
               Logout
             </button>
           </div>
         </li>
-        {/* /User Menu */}
       </ul>
-      {/* /Header Right Menu */}
     </div>
   );
 };
 
 export default Header;
-
-
-
-
-

@@ -25,18 +25,40 @@ import Prescription from "./Components/Prescription";
 import BlogCategory from "./Components/BlogCategory";
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import BlogList from "./Components/BlogList";
+import { useEffect, useState } from "react";
 
 
 function App() {
   const location = useLocation();
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  const toggleMobileSidebar = () => {
+    setIsMobileSidebarOpen(!isMobileSidebarOpen);
+  };
+
+  useEffect(() => {
+    setIsMobileSidebarOpen(false);
+  }, [location.pathname]);
 
   return (
     <div>
-      {location.pathname !== "/" && location.pathname !== "/Login" && (
-        <Header />
-      )}
-      {location.pathname !== "/" && location.pathname !== "/Login" && (
-        <Sidebar />
+       {location.pathname !== "/" && location.pathname !== "/Login" && (
+        <>
+          <Header 
+            isMobileSidebarOpen={isMobileSidebarOpen}
+            toggleMobileSidebar={toggleMobileSidebar} 
+          />
+          <Sidebar 
+            isMobileSidebarOpen={isMobileSidebarOpen}
+            toggleMobileSidebar={toggleMobileSidebar} 
+          />
+          {isMobileSidebarOpen && (
+            <div 
+              className="sidebar-overlay" 
+              onClick={toggleMobileSidebar}
+            />
+          )}
+        </>
       )}
       <Routes>
         <Route path="/" element={<Login />} />

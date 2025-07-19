@@ -1107,7 +1107,7 @@ p:last-child  {
 }
 @media (max-width: 991.98px) {
   .sidebar-overlay.opened {
-    display: block;
+    /* display: block; */
   }
 }
 
@@ -3900,3 +3900,57 @@ table.table-inbox tbody tr.checked {
 }
 
 
+
+/* Mobile sidebar styles */
+.sidebar {
+  width: 270px;
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 992px) {
+  .sidebar {
+    position: fixed;
+    top: 60px;
+    left: -270px;
+    height: calc(100vh - 60px);
+    z-index: 1001;
+  }
+  
+  .sidebar.active {
+    left: 220px;
+  }
+  
+  .sidebar-overlay {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: none;
+  }
+  
+  .sidebar-overlay.active {
+    display: block;
+  }
+  
+  .page-wrapper {
+    margin-left: 0;
+    transition: all 0.3s ease;
+  }
+  
+  .page-wrapper.sidebar-open {
+    margin-left: 270px;
+  }
+}
+
+@media (min-width: 992px) {
+  .page-wrapper {
+    margin-left: 270px;
+  }
+  
+  .sidebar-overlay {
+    display: none !important;
+  }
+}
