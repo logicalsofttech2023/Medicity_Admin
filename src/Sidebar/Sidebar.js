@@ -48,6 +48,12 @@ const Sidebar = ({ isMobileSidebarOpen, toggleMobileSidebar }) => {
               </Link>
             </li>
 
+            <li className={isActive("/Patientlist") ? "active" : ""}>
+              <Link to="/Patientlist" onClick={handleLinkClick}>
+                <FiUserCheck /> <span>Patients</span>
+              </Link>
+            </li>
+
             <li className={isActive("/Appointmentlist") ? "active" : ""}>
               <Link to="/Appointmentlist" onClick={handleLinkClick}>
                 <FiCalendar /> <span>Appointments</span>
@@ -97,11 +103,7 @@ const Sidebar = ({ isMobileSidebarOpen, toggleMobileSidebar }) => {
               </Link>
             </li>
 
-            <li className={isActive("/Patientlist") ? "active" : ""}>
-              <Link to="/Patientlist" onClick={handleLinkClick}>
-                <FiUserCheck /> <span>Patients</span>
-              </Link>
-            </li>
+            
 
             <li className={isActive("/blogCategory") ? "active" : ""}>
               <Link to="/blogCategory" onClick={handleLinkClick}>
@@ -115,7 +117,7 @@ const Sidebar = ({ isMobileSidebarOpen, toggleMobileSidebar }) => {
               </Link>
             </li>
 
-            <li className={isActive("/Reviews") ? "active" : ""}>
+            {/* <li className={isActive("/Reviews") ? "active" : ""}>
               <Link to="/Reviews" onClick={handleLinkClick}>
                 <FiStar /> <span>Reviews</span>
               </Link>
@@ -125,7 +127,7 @@ const Sidebar = ({ isMobileSidebarOpen, toggleMobileSidebar }) => {
               <Link to="/Transactionslist" onClick={handleLinkClick}>
                 <FiActivity /> <span>Transactions</span>
               </Link>
-            </li>
+            </li> */}
 
             <li className={isActive("/Settings") ? "active" : ""}>
               <Link to="/Settings" onClick={handleLinkClick}>
@@ -133,11 +135,11 @@ const Sidebar = ({ isMobileSidebarOpen, toggleMobileSidebar }) => {
               </Link>
             </li>
 
-            <li className={isActive("/Invoicereport") ? "active" : ""}>
+            {/* <li className={isActive("/Invoicereport") ? "active" : ""}>
               <Link to="/Invoicereport" onClick={handleLinkClick}>
                 <FiFile /> <span>Reports/Invoice</span>
               </Link>
-            </li>
+            </li> */}
 
             <li className={isActive("/Profile") ? "active" : ""}>
               <Link to="/Profile" onClick={handleLinkClick}>

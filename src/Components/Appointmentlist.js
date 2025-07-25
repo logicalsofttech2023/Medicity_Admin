@@ -10,7 +10,8 @@ const Appointmentlist = () => {
 
   useEffect(() => {
     GetAllorders();
-  }, [0]);
+  }, []);
+
   const GetAllorders = () => {
     axios
       .get(`${process.env.REACT_APP_API_KEY}getAllOrders`)
@@ -26,13 +27,13 @@ const Appointmentlist = () => {
   const [recordFor, setrecordFor] = useState();
   const [comment, setcomment] = useState();
   const [file, setfile] = useState();
+  
   const Addreport = () => {
     const formData = new FormData();
     formData.append("userId", uderid);
     formData.append("testName", testName);
     formData.append("recordFor", recordFor);
     formData.append("comment", comment);
-
     formData.append("file", file);
 
     axios
@@ -46,6 +47,12 @@ const Appointmentlist = () => {
   };
 
   const handleToggle = async (orderId, currentStatus) => {
+    // If current status is canceled (2), don't allow toggling
+    if (currentStatus === 2) {
+      toast.error("Canceled appointments cannot be modified");
+      return;
+    }
+
     const newStatus = currentStatus === 1 ? 0 : 1;
 
     try {
@@ -59,6 +66,7 @@ const Appointmentlist = () => {
 
       console.log("Status updated:", response.data);
       toast.success(response.data.message);
+      
       setOrdersdata((prevOrders) =>
         prevOrders.map((order) =>
           order._id === orderId ? { ...order, bookingStatus: newStatus } : order
@@ -66,37 +74,50 @@ const Appointmentlist = () => {
       );
     } catch (error) {
       console.error("Error updating booking status:", error);
+      toast.error("Failed to update status");
+    }
+  };
+
+  const getStatusText = (status) => {
+    switch (status) {
+      case 0:
+        return "Upcoming";
+      case 1:
+        return "Completed";
+      case 2:
+        return "Canceled";
+      default:
+        return "Unknown";
+    }
+  };
+
+  const getStatusClass = (status) => {
+    switch (status) {
+      case 0:
+        return "badge bg-warning-light";
+      case 1:
+        return "badge bg-success-light";
+      case 2:
+        return "badge bg-danger-light";
+      default:
+        return "badge bg-secondary-light";
     }
   };
 
   return (
     <div className="main-wrapper">
       <Toaster />
-      {/* Header */}
-
-      {/* /Header */}
-      {/* Sidebar */}
-
-      {/* /Sidebar */}
-      {/* Page Wrapper */}
       <div className="page-wrapper">
         <div className="content container-fluid">
-          {/* Page Header */}
           <div className="page-header">
             <div className="row">
               <div className="col-sm-12">
                 <h3 className="page-title">Appointments</h3>
-                {/* <ul className="breadcrumb">
-                <li className="breadcrumb-item"><Link to="/home">Dashboard</Link></li>
-                <li className="breadcrumb-item active">Appointments</li>
-              </ul> */}
               </div>
             </div>
           </div>
-          {/* /Page Header */}
           <div className="row">
             <div className="col-md-12">
-              {/* Recent Orders */}
               <div className="card">
                 <div className="card-body">
                   {Ordersdata?.length > 0 ? (
@@ -110,13 +131,13 @@ const Appointmentlist = () => {
                             <th>Appointment Time</th>
                             <th>Status</th>
                             <th>Amount</th>
-                            <th>Report</th>
+                            <th>Actions</th>
                           </tr>
                         </thead>
                         <tbody>
                           {Ordersdata?.map((data) => {
                             return (
-                              <tr>
+                              <tr key={data._id}>
                                 <td>
                                   <h2 className="table-avatar">
                                     <Link
@@ -145,35 +166,40 @@ const Appointmentlist = () => {
                                   </span>
                                 </td>
                                 <td>
-                                  <div className="status-toggle">
-                                    <input
-                                      type="checkbox"
-                                      id={`status_${data?._id}`}
-                                      className="check"
-                                      checked={data.bookingStatus === 1}
-                                      onChange={() =>
-                                        handleToggle(
-                                          data._id,
-                                          data.bookingStatus
-                                        )
-                                      }
-                                    />
-                                    <label
-                                      htmlFor={`status_${data._id}`}
-                                      className="checktoggle"
-                                    >
-                                      checkbox
-                                    </label>
-                                  </div>
+                                  <span className={getStatusClass(data.bookingStatus)}>
+                                    {getStatusText(data.bookingStatus)}
+                                  </span>
+                                  {data.bookingStatus === 2 && data.cancelReason && (
+                                    <div className="text-danger small mt-1">
+                                      Reason: {data.cancelReason}
+                                    </div>
+                                  )}
                                 </td>
                                 <td>₹{data?.payableAmount}</td>
-                                <td
-                                  className="text-primary"
-                                  onClick={() => setuderid(data.userId?._id)}
-                                  data-bs-toggle="modal"
-                                  href="#edit_invoice_report"
-                                >
-                                  Add
+                                <td>
+                                  {data.bookingStatus !== 2 && (
+                                    <div className="status-toggle">
+                                      <input
+                                        type="checkbox"
+                                        id={`status_${data?._id}`}
+                                        className="check"
+                                        checked={data.bookingStatus === 1}
+                                        onChange={() =>
+                                          handleToggle(
+                                            data._id,
+                                            data.bookingStatus
+                                          )
+                                        }
+                                        disabled={data.bookingStatus === 2}
+                                      />
+                                      <label
+                                        htmlFor={`status_${data._id}`}
+                                        className="checktoggle"
+                                      >
+                                        checkbox
+                                      </label>
+                                    </div>
+                                  )}
                                 </td>
                               </tr>
                             );
@@ -186,70 +212,68 @@ const Appointmentlist = () => {
                   )}
                 </div>
               </div>
-              {/* /Recent Orders */}
             </div>
           </div>
         </div>
       </div>
-      {/* /Page Wrapper */}
 
       <div
-        class="modal fade"
+        className="modal fade"
         id="edit_invoice_report"
         style={{ display: "none" }}
         aria-hidden="true"
       >
-        <div class="modal-dialog modal-dialog-centered" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Add Invoice Report</h5>
+        <div className="modal-dialog modal-dialog-centered" role="document">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Add Invoice Report</h5>
               <button
                 type="button"
-                class="btn-close"
+                className="btn-close"
                 data-bs-dismiss="modal"
                 aria-label="Close"
               ></button>
             </div>
-            <div class="modal-body">
+            <div className="modal-body">
               <div>
-                <div class="row">
-                  <div class="col-12 col-sm-12">
-                    <div class="mb-3">
-                      <label class="mb-2">Test Name</label>
+                <div className="row">
+                  <div className="col-12 col-sm-12">
+                    <div className="mb-3">
+                      <label className="mb-2">Test Name</label>
                       <input
                         onChange={(e) => settestName(e.target.value)}
                         type="text"
-                        class="form-control"
+                        className="form-control"
                       />
                     </div>
                   </div>
-                  <div class="col-12 col-sm-12">
-                    <div class="mb-3">
-                      <label class="mb-2">Record For</label>
+                  <div className="col-12 col-sm-12">
+                    <div className="mb-3">
+                      <label className="mb-2">Record For</label>
                       <input
                         onChange={(e) => setrecordFor(e.target.value)}
                         type="text"
-                        class="form-control"
+                        className="form-control"
                       />
                     </div>
                   </div>
-                  <div class="col-12 col-sm-12">
-                    <div class="mb-3">
-                      <label class="mb-2">Comment</label>
+                  <div className="col-12 col-sm-12">
+                    <div className="mb-3">
+                      <label className="mb-2">Comment</label>
                       <input
                         onChange={(e) => setcomment(e.target.value)}
                         type="text"
-                        class="form-control"
+                        className="form-control"
                       />
                     </div>
                   </div>
-                  <div class="col-12 col-sm-12">
-                    <div class="mb-3">
-                      <label class="mb-2">Report File</label>
+                  <div className="col-12 col-sm-12">
+                    <div className="mb-3">
+                      <label className="mb-2">Report File</label>
                       <input
                         onChange={(e) => setfile(e.target.files[0])}
                         type="file"
-                        class="form-control"
+                        className="form-control"
                       />
                     </div>
                   </div>
@@ -258,7 +282,7 @@ const Appointmentlist = () => {
                   data-bs-dismiss="modal"
                   onClick={Addreport}
                   type="submit"
-                  class="btn btn-primary w-100"
+                  className="btn btn-primary w-100"
                 >
                   Save
                 </button>
